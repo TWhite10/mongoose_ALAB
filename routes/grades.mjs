@@ -54,46 +54,65 @@ router.get("/:id", async (req, res) => {
  });
 // Add a score to a grade entry
 router.patch("/:id/add", async (req, res) => {
-  let collection = await db.collection("grades");
-  let query = { _id: new ObjectId(req.params.id) };
+  try{
+    const grade = await Grade.findByIdAndUpdate(
+      req.params.id, 
+      {$push: { scores: req.body }},
+      {new:true}
+    )  ;
+    if(!grade){
+      res.status(404).send("Not found")
+    }else{
+      res.status(200).send(grade)
+    }
+  }catch (error){
+    res.status(400).send(error)
+  };
 
-  let result = await collection.updateOne(query, {
-    $push: { scores: req.body }
-  });
-
-  if (!result) res.send("Not found").status(404);
-  else res.send(result).status(200);
 });
+
+// Remove a score from a grade entry
+router.patch("/:id/remove", async (req, res) => {
+  try{
+    const grade = await Grade.findByIdAndUpdate(
+      req.params.id, 
+      {$pull: { scores: req.body }},
+      {new:true}
+    )  ;
+    if(!grade){
+      res.status(404).send("Not found")
+    }else{
+      res.status(200).send(grade)
+    }
+  }catch (error){
+    res.status(400).send(error)
+  };
+ 
+});
+
+// Delete a single grade entry
+router.delete("/:id", async (req, res) => {
+  try{
+    const result = await Grade.findByIdAndDelete(
+      req.params.id
+    )  ;
+    if(!result){
+      res.status(404).send("Not found")
+    }else{
+      res.status(200).send(result)
+    }
+  }catch (error){
+    res.status(400).send(error)
+  };
+
+});
+
+
 
 // // Get route for backwards compatibility
 // router.get("/student/:id", async (req, res) => {
 //   res.redirect(`learner/${req.params.id}`);
 // });
-
-
-// // Remove a score from a grade entry
-// router.patch("/:id/remove", async (req, res) => {
-//   let collection = await db.collection("grades");
-//   let query = { _id: new ObjectId(req.params.id) };
-
-//   let result = await collection.updateOne(query, {
-//     $pull: { scores: req.body }
-//   });
-
-//   if (!result) res.send("Not found").status(404);
-//   else res.send(result).status(200);
-// });
-
-// // Delete a single grade entry
-// router.delete("/:id", async (req, res) => {
-//   let collection = await db.collection("grades");
-//   let query = { _id: new ObjectId(req.params.id) };
-//   let result = await collection.deleteOne(query);
-
-//   if (!result) res.send("Not found").status(404);
-//   else res.send(result).status(200);
-// });
-
 
 
 // // Get a learner's grade data
@@ -160,3 +179,4 @@ router.patch("/:id/add", async (req, res) => {
 // });
 
 export default router;
+// contributions from - John, Ray 
