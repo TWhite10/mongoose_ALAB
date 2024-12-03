@@ -1,15 +1,15 @@
 import express from "express";
 import mongoose from "mongoose";
 import grades from "./routes/grades.mjs";
-import grades_agg from "./routes/grades_agg.mjs";
+
 import dotenv from "dotenv";
 dotenv.config();
 
-const PORT = 5050;
+const PORT = process.env.PORT||5050;
+
+mongoose.connect(process.env.ATLAS_URI);
+
 const app = express();
-
-
-
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -17,7 +17,6 @@ app.get("/", (req, res) => {
 });
 
 app.use("/grades", grades);
-app.use("/grades_agg", grades_agg);
 
 // Global error handling
 app.use((err, _req, res, next) => {
